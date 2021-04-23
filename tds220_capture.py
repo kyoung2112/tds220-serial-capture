@@ -5,7 +5,7 @@ The Tektronix TDS220 oscilloscope exports a screen capture when you press the
 that's transmitted directly from the serial port (9600, 8, N, 1).
 
 This script starts listening for the image (with a 10 second timeout), and then
-starts receiving it with a dynamic progress indicator. Upon reception, the 
+starts receiving it with a dynamic progress indicator. Upon reception, the
 image is then fixed (it comes from the TDS220 needing to be rotated).
 '''
 '''
@@ -29,6 +29,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 import serial
+import sys
 from PIL import Image
 
 print("Capturing TDS220 BMP from COM5 - press the HARDCOPY button now")
@@ -54,7 +55,12 @@ while True:
         ser_bytes = ser.read(999)
         #print(f"Received {len(ser_bytes)}bytes.")
         if (len(ser_bytes) == 0):
-            print("\nDone!")
+            if (total_received_bytes == 0):
+                print("\nTimeout - no data received.")
+                file.close()
+                exit(1)
+            else:
+                print("\nDone!")
             break
         # We received some bytes - let's lower the timeout
         #  so we exit faster when the transfer is completed
@@ -65,6 +71,8 @@ while True:
         print(f'\rDownloading capture... {round((total_received_bytes/total_expected_bytes)*100)}%', end='')
         file.write(ser_bytes)
 
+    except SystemExit as e:
+        sys.exit(e)
     except:
         print("Unexpected error:", sys.exc_info()[0])
         print("Exiting")
