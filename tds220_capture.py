@@ -7,6 +7,8 @@ that's transmitted directly from the serial port (9600, 8, N, 1).
 This script starts listening for the image (with a 10 second timeout), and then
 starts receiving it with a dynamic progress indicator. Upon reception, the
 image is then fixed (it comes from the TDS220 needing to be rotated).
+
+Argument: serial port name
 '''
 '''
 Copyright 2021 Kris Young
@@ -32,13 +34,13 @@ import serial
 import sys
 from PIL import Image
 
-print("Capturing TDS220 BMP from COM5 - press the HARDCOPY button now")
+print("Capturing TDS220 BMP from " + sys.argv[1] + " - press the HARDCOPY button now")
 total_expected_bytes = 38462 # Expected size of TDS220 BMP file
 total_received_bytes = 0
 
 # configure the serial connections
 ser = serial.Serial(
-    port='COM5',
+    port=sys.argv[1],
     baudrate=9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
